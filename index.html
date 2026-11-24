@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>每日星座運勢查詢</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      position: relative;
+    }
+
+    /* 右上角固定標籤 */
+    .top-right-badge {
+      position: fixed;
+      top: 20px;
+      right: 25px;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #f8d210;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+    }
+
+    /* 主卡片容器 */
+    .container {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      padding: 40px 30px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      color: #f8d210;
+      letter-spacing: 1px;
+    }
+
+    p.subtitle {
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      margin-bottom: 25px;
+    }
+
+    /* 輸入區塊 */
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    input[type="date"] {
+      width: 100%;
+      padding: 12px 15px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(0, 0, 0, 0.25);
+      color: #ffffff;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    input[type="date"]:focus {
+      border-color: #f8d210;
+    }
+
+    /* 修正部分瀏覽器日期選擇器圖示顏色 */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+      cursor: pointer;
+    }
+
+    button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #f8d210, #f59e0b);
+      color: #1a1a2e;
+      font-size: 1.05rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(248, 210, 16, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    /* 結果顯示區 */
+    .result-box {
+      display: none;
+      text-align: left;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 15px;
+      padding: 25px;
+      margin-top: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .zodiac-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      padding-bottom: 12px;
+      margin-bottom: 15px;
+    }
+
+    .zodiac-name {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #f8d210;
+    }
+
+    .zodiac-date {
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    .fortune-item {
+      margin-bottom: 12px;
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    .fortune-label {
+      font-weight: bold;
+      color: #38bdf8;
+      margin-right: 6px;
+    }
+
+    .lucky-tags {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: #e2e8f0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 右上角顯示 40伶 -->
+  <div class="top-right-badge">40伶</div>
+
+  <div class="container">
+    <h1>✨ 專屬星座運勢 ✨</h1>
+    <p class="subtitle">請選擇您的出生日期，探索今日星象指引</p>
+
+    <div class="input-group">
+      <input type="date" id="birthdate" required>
+      <button onclick="calculateFortune()">查看我的運勢</button>
+    </div>
+
+    <div id="result" class="result-box">
+      <div class="zodiac-header">
+        <span id="zodiacName" class="zodiac-name"></span>
+        <span id="zodiacRange" class="zodiac-date"></span>
+      </div>
+      <div class="fortune-item">
+        <span class="fortune-label">🌟 整體運勢：</span>
+        <span id="overallFortune"></span>
+      </div>
+      <div class="fortune-item">
+        <span class="fortune-label">💖 感情運勢：</span>
+        <span id="loveFortune"></span>
+      </div>
+      <div class="fortune-item">
+        <span class="fortune-label">💼 事業學業：</span>
+        <span id="workFortune"></span>
+      </div>
+      <div class="lucky-tags">
+        <span id="luckyColor" class="tag"></span>
+        <span id="luckyNumber" class="tag"></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const zodiacData = [
+      {
+        name: "摩羯座 ♑", range: "12/22 - 01/19",
+        overall: "穩紮穩打的一天，過去累積的努力開始看見回報，適合制定長期計畫。",
+        love: "務實的陪伴比甜言蜜語更能打動對方，單身者易在職場或學習場合遇到對象。",
+        work: "專注力極高，能順利解決棘手的難題，獲得主管或師長的肯定。",
+        color: "大地棕", number: "8"
+      },
+      {
+        name: "水瓶座 ♒", range: "01/20 - 02/18",
+        overall: "思緒活躍、靈感湧現，適合嘗試新事物或與不同領域的朋友交流。",
+        love: "保持適當的個人空間能讓關係更融洽，單身者容易被獨特氣質的人吸引。",
+        work: "跳脫傳統框架的點子能為團隊帶來突破，大膽提出你的想法吧！",
+        color: "天空藍", number: "4"
+      },
+      {
+        name: "雙魚座 ♓", range: "02/19 - 03/20",
+        overall: "直覺敏銳，情緒感受力強，適合安排藝術欣賞或獨處沉澱的時光。",
+        love: "浪漫氛圍濃厚，適合與伴侶安排一場溫馨約會；單身者桃花運悄然上升。",
+        work: "創意表現亮眼，但處理細節與數據時需多加核對，避免粗心大意。",
+        color: "珍珠白", number: "7"
+      },
+      {
+        name: "牡羊座 ♈", range: "03/21 - 04/19",
+        overall: "行動力滿點！適合主動出擊開啟新計畫，但切記保持耐心、避免衝動。",
+        love: "熱情直接的表達方式很有魅力，與伴侶互動充滿活力。",
+        work: "執行力超群，適合處理需要快速決斷的任務，進度超前。",
+        color: "火焰紅", number: "1"
+      },
+      {
+        name: "金牛座 ♉", range: "04/20 - 05/20",
+        overall: "步調平穩舒適，適合整理財務規劃或享受一頓美食來犒賞自己。",
+        love: "細水長流的溫暖最動人，適合與另一半討論未來的生活藍圖。",
+        work: "按部就班完成手邊工作，穩健的表現讓你成為團隊中最可靠的支柱。",
+        color: "森林綠", number: "6"
+      },
+      {
+        name: "雙子座 ♊", range: "05/21 - 06/20",
+        overall: "資訊流通快速，社交運旺盛，容易從聊天中獲得意想不到的好消息。",
+        love: "幽默風趣的談吐讓你成為焦點，多傾聽對方的想法會讓感情更加分。",
+        work: "溝通協調能力極佳，適合進行簡報、洽談合作或腦力激盪。",
+        color: "檸檬黃", number: "5"
+      },
+      {
+        name: "巨蟹座 ♋", range: "06/21 - 07/22",
+        overall: "內心充滿安全感，適合與家人朋友相聚，居家環境的整理能帶來好運。",
+        love: "溫柔體貼的特質讓伴侶倍感窩心，單身者可多留意身邊熟悉的親友圈。",
+        work: "團隊合作默契佳，善用你的同理心能有效化解職場上的小摩擦。",
+        color: "銀灰色", number: "2"
+      },
+      {
+        name: "獅子座 ♌", range: "07/23 - 08/22",
+        overall: "自信心爆棚，走在人群中自帶光芒，適合展現個人才華與領導力。",
+        love: "大方展現你的熱情與慷慨，感情升溫迅速，單身者有望成為眾人矚目焦點。",
+        work: "主導權掌握在手中，適合帶領團隊衝刺目標，成果令人驚豔。",
+        color: "燦爛金", number: "9"
+      },
+      {
+        name: "處女座 ♍", range: "08/23 - 09/22",
+        overall: "條理分明、效率極高，適合將積壓已久的待辦事項一次清空。",
+        love: "在生活小細節上的貼心舉動最能傳達愛意，試著放下過高的標準會更輕鬆。",
+        work: "分析能力與細心度發揮到極致，能精準找出問題核心並完美解決。",
+        color: "海軍藍", number: "3"
+      },
+      {
+        name: "天秤座 ♎", range: "09/23 - 10/22",
+        overall: "人際關係和諧，審美眼光獨到，適合購物、打扮或參與社交聚會。",
+        love: "優雅迷人的氣質吸引不少好感，有伴者適合來場有質感的約會。",
+        work: "善於平衡各方意見，是團隊中不可或缺的潤滑劑，合作進展順利。",
+        color: "櫻花粉", number: "6"
+      },
+      {
+        name: "天蠍座 ♏", range: "10/23 - 11/21",
+        overall: "洞察力極強，能看穿事物背後的真相，適合專注於深度研究或自我提升。",
+        love: "情感深邃且專一，與伴侶進行深度心靈對話能讓彼此更緊密。",
+        work: "意志堅定，面對挑戰毫不退縮，暗中籌備的計畫將迎來關鍵突破。",
+        color: "酒紅色", number: "9"
+      },
+      {
+        name: "射手座 ♐", range: "11/22 - 12/21",
+        overall: "樂觀開朗、充滿好奇心，適合規劃旅行、戶外活動或學習新技能。",
+        love: "輕鬆自在的相處模式最愉快，一起探索沒去過的地方能為感情增添新鮮感。",
+        work: "視野開闊，適合接觸跨領域或國際相關事務，貴人運相當不錯。",
+        color: "薰衣草紫", number: "3"
+      }
+    ];
+
+    function getZodiacIndex(month, day) {
+      if ((month == 12 && day >= 22) || (month == 1 && day <= 19)) return 0; // 摩羯
+      if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) return 1;  // 水瓶
+      if ((month == 2 && day >= 19) || (month == 3 && day <= 20)) return 2;  // 雙魚
+      if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) return 3;  // 牡羊
+      if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) return 4;  // 金牛
+      if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) return 5;  // 雙子
+      if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) return 6;  // 巨蟹
+      if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) return 7;  // 獅子
+      if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) return 8;  // 處女
+      if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) return 9; // 天秤
+      if ((month == 10 && day >= 23) || (month == 11 && day <= 21)) return 10; // 天蠍
+      return 11; // 射手 (11/22 - 12/21)
+    }
+
+    function calculateFortune() {
+      const dateInput = document.getElementById("birthdate").value;
+      if (!dateInput) {
+        alert("請先選擇您的出生日期！");
+        return;
+      }
+
+      const dateParts = dateInput.split("-");
+      const month = parseInt(dateParts[1], 10);
+      const day = parseInt(dateParts[2], 10);
+
+      const index = getZodiacIndex(month, day);
+      const data = zodiacData[index];
+
+      document.getElementById("zodiacName").textContent = data
